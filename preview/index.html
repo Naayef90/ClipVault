@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QuickCopy — Grey Theme Preview</title>
+<style>
+/* ── Grey palette ────────────────────────────────────────────── */
+:root{
+  --bg:       #0F0F0F;
+  --surf1:    #1A1A1A;
+  --surf2:    #212121;
+  --surf3:    #2A2A2A;
+  --surf4:    #313131;
+  --primary:  #C0C0C0;
+  --on-pri:   #111111;
+  --text:     #EEEEEE;
+  --sub:      #888888;
+  --outline:  #3A3A3A;
+  --outlineV: #252525;
+  --error:    #CF6679;
+  --success:  #5C9E6E;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 16px;gap:16px;min-height:100vh;
+}
+h1{color:var(--sub);font-size:12px;letter-spacing:2px;text-transform:uppercase;}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.tab{
+  padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;
+  cursor:pointer;border:1px solid var(--outline);background:var(--surf2);color:var(--sub);
+  transition:all .15s;
+}
+.tab.active{background:var(--primary);color:var(--on-pri);border-color:var(--primary);}
+
+/* phone shell */
+.phone{
+  width:340px;background:var(--bg);border-radius:36px;
+  border:6px solid #1C1C1C;box-shadow:0 20px 60px rgba(0,0,0,.9);
+  overflow:hidden;display:flex;flex-direction:column;position:relative;
+  min-height:700px;
+}
+.sb{background:var(--bg);padding:10px 18px 5px;display:flex;justify-content:space-between;}
+.sb-t{color:var(--text);font-size:12px;font-weight:600;}
+.sb-i{color:var(--sub);font-size:11px;}
+
+/* app bar */
+.ab{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px 8px;border-bottom:1px solid var(--outlineV);
+}
+.ab-left{}
+.ab-title{color:var(--text);font-size:19px;font-weight:700;letter-spacing:.2px;}
+.ab-sub{color:var(--sub);font-size:11px;margin-top:1px;}
+.ab-right{display:flex;gap:4px;}
+.ab-btn{background:none;border:none;font-size:17px;cursor:pointer;padding:7px;border-radius:100px;}
+
+/* search */
+.search{
+  display:flex;align-items:center;gap:8px;
+  margin:10px 14px 8px;border-radius:12px;
+  background:var(--surf1);border:1px solid var(--outlineV);
+  padding:9px 12px;
+}
+.search-icon{font-size:13px;}
+.search-input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--text);font-size:14px;
+}
+.search-input::placeholder{color:#444;}
+
+/* list card */
+.list-card{
+  flex:1;margin:0 14px;border-radius:14px;
+  background:var(--surf1);overflow:hidden;
+}
+
+/* row */
+.row{
+  display:flex;align-items:center;
+  border-bottom:1px solid rgba(58,58,58,.5);
+  min-height:56px;background:var(--surf1);
+  transition:background .12s;cursor:pointer;
+}
+.row:hover{background:#202020;}
+.row:last-child{border-bottom:none;}
+.accent{width:3px;align-self:stretch;flex-shrink:0;}
+.icon-wrap{width:38px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.text-block{flex:1;padding:10px 6px 10px 2px;overflow:hidden;min-width:0;display:flex;flex-direction:column;gap:3px;}
+.row-title{color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-preview{color:var(--sub);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-btns{display:flex;gap:5px;padding-right:10px;flex-shrink:0;}
+.btn{
+  width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:5px 4px;border-radius:8px;cursor:pointer;gap:1px;border:1px solid;
+}
+.copy-btn{background:rgba(192,192,192,.06);border-color:var(--primary);}
+.copy-lbl{font-size:9px;font-weight:700;color:var(--primary);letter-spacing:.3px;}
+.del-btn{background:rgba(207,102,121,.06);border-color:var(--error);}
+.del-lbl{font-size:9px;font-weight:700;color:var(--error);letter-spacing:.3px;}
+.btn-ico{font-size:12px;}
+
+/* bottom ad */
+.banner{
+  background:var(--surf2);border-top:1px solid var(--outlineV);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:8px 12px;
+}
+.banner-lbl{color:#444;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.banner-txt{color:var(--sub);font-size:11px;}
+
+/* fab */
+.fab{
+  position:absolute;bottom:64px;right:16px;
+  width:50px;height:50px;border-radius:14px;
+  background:var(--primary);display:flex;align-items:center;justify-content:center;
+  font-size:26px;color:var(--on-pri);cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.6);transition:transform .12s;
+}
+.fab:hover{transform:scale(1.06);}
+
+/* snackbar */
+.snackbar{
+  position:absolute;bottom:120px;left:14px;right:14px;
+  background:#252525;border-left:3px solid var(--success);border-radius:5px;
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  box-shadow:0 2px 12px rgba(0,0,0,.7);z-index:20;
+  animation:su .25s ease;
+}
+@keyframes su{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.snack-txt{flex:1;color:var(--text);font-size:13px;}
+.snack-x{color:var(--success);font-size:14px;font-weight:700;cursor:pointer;}
+
+/* bottom sheet */
+.bs-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:flex-end;z-index:50;border-radius:30px;
+}
+.bs-sheet{
+  background:#252525;border-radius:18px 18px 0 0;width:100%;padding-bottom:16px;
+  animation:su .25s ease;
+}
+.bs-handle{width:32px;height:4px;background:var(--outline);border-radius:2px;margin:10px auto 4px;}
+.bs-meta{display:flex;align-items:center;gap:10px;padding:10px 18px;}
+.bs-dot{width:10px;height:10px;border-radius:50%;}
+.bs-name{color:var(--text);font-size:15px;font-weight:600;flex:1;}
+.bs-div{height:1px;background:var(--outlineV);margin:0 18px 6px;}
+.bs-action{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;}
+.bs-action:hover{background:rgba(192,192,192,.05);}
+.bs-ico{font-size:16px;width:22px;text-align:center;}
+.bs-lbl{font-size:14px;font-weight:500;color:var(--text);}
+.bs-action.danger .bs-lbl{color:var(--error);}
+
+/* create modal */
+.modal-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:flex-end;z-index:50;border-radius:30px;
+}
+.modal-sheet{
+  background:#212121;border-radius:18px 18px 0 0;width:100%;
+  max-height:94%;overflow-y:auto;animation:su .28s ease;
+}
+.modal-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;border-bottom:1px solid var(--outlineV);
+}
+.modal-title{color:var(--text);font-size:16px;font-weight:600;}
+.modal-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px;}
+.modal-body{padding:16px;display:flex;flex-direction:column;gap:14px;}
+.field-lbl{color:var(--sub);font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;}
+.field-input{
+  background:rgba(42,42,42,.8);border:1px solid var(--outline);border-radius:6px;
+  padding:10px 12px;color:var(--text);font-size:14px;width:100%;outline:none;font-family:inherit;
+}
+.field-input:focus{border-color:var(--primary);border-width:2px;}
+.textarea{min-height:72px;resize:none;line-height:1.5;}
+.counter{color:#444;font-size:10px;text-align:right;margin-top:2px;}
+.color-row{display:flex;gap:10px;padding:4px 0;flex-wrap:wrap;}
+.swatch{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  transition:transform .1s;border:2px solid transparent;
+}
+.swatch:hover{transform:scale(1.2);}
+.swatch.sel{border-color:var(--text);box-shadow:0 0 0 2px var(--text);}
+.cat-row{display:flex;gap:6px;flex-wrap:wrap;}
+.cat{padding:5px 11px;border-radius:14px;font-size:11px;font-weight:500;
+  cursor:pointer;border:1px solid var(--outline);background:var(--surf3);color:var(--sub);}
+.cat.active{background:rgba(192,192,192,.12);color:var(--primary);border-color:var(--primary);}
+.preview-block{
+  border-left:3px solid #C0C0C0;background:rgba(192,192,192,.06);
+  border-radius:4px;padding:10px;
+}
+.preview-title{color:var(--text);font-size:13px;font-weight:600;margin-bottom:4px;}
+.preview-content{color:var(--sub);font-size:12px;line-height:1.5;}
+
+/* settings modal */
+.settings-sheet{
+  background:#212121;border-radius:18px 18px 0 0;width:100%;
+  max-height:95%;overflow-y:auto;animation:su .28s ease;
+}
+.settings-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px 10px;border-bottom:1px solid var(--outlineV);
+}
+.settings-title{color:var(--text);font-size:18px;font-weight:700;}
+.sec-label{color:var(--sub);font-size:10px;font-weight:600;letter-spacing:1.2px;
+  text-transform:uppercase;padding:14px 18px 6px;}
+.settings-card{background:var(--surf3);margin:0 12px 4px;border-radius:12px;overflow:hidden;}
+.s-row{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:52px;}
+.s-row+.s-row{border-top:1px solid var(--outlineV);}
+.s-ico{font-size:18px;width:26px;text-align:center;}
+.s-label{flex:1;color:var(--text);font-size:14px;font-weight:500;}
+.s-val{color:var(--sub);font-size:12px;font-weight:500;}
+.s-chev{color:var(--outline);font-size:18px;}
+
+/* widget preview */
+.widget-wrap{width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.widget-lbl{color:var(--sub);font-size:11px;letter-spacing:1px;text-transform:uppercase;}
+.widget-bg{
+  width:340px;background:#080808;border-radius:20px;
+  padding:20px;display:flex;flex-direction:column;gap:12px;
+  border:1px solid #1C1C1C;
+}
+.sizes-row{display:flex;gap:10px;}
+.widget{background:#0F0F0F;border-radius:12px;border:1px solid #222;
+  overflow:hidden;display:flex;flex-direction:column;}
+.widget.small{flex:0 0 100px;height:120px;}
+.widget.medium{flex:1;height:180px;}
+.widget.large{width:100%;height:220px;}
+.w-header{
+  display:flex;align-items:center;gap:5px;padding:6px 8px 4px;
+  border-bottom:1px solid #222;
+}
+.w-title{color:#C0C0C0;font-size:9px;font-weight:700;flex:1;}
+.w-open{color:#444;font-size:9px;}
+.w-list{flex:1;overflow:hidden;padding:3px 5px;}
+.w-row{
+  display:flex;align-items:center;height:28px;
+  background:#1A1A1A;border-radius:5px;margin-bottom:2px;overflow:hidden;
+}
+.w-accent{width:2px;height:100%;flex-shrink:0;}
+.w-text{flex:1;padding:0 6px;overflow:hidden;}
+.w-row-title{color:#EEEEEE;font-size:9px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.w-row-cat{color:#555;font-size:8px;}
+.w-copy{width:20px;text-align:center;font-size:9px;color:#555;}
+.size-labels{display:flex;gap:10px;justify-content:space-between;padding:0 4px;}
+.size-label{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.size-name{color:var(--text);font-size:11px;font-weight:600;}
+.size-dim{color:var(--sub);font-size:9px;}
+</style>
+</head>
+<body>
+
+<h1>QuickCopy — Grey Theme</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('home')">🏠 Home</button>
+  <button class="tab" onclick="show('copy')">✅ Copy</button>
+  <button class="tab" onclick="show('longpress')">⚙️ Long Press</button>
+  <button class="tab" onclick="show('create')">✏️ Create</button>
+  <button class="tab" onclick="show('settings')">⚙️ Settings</button>
+  <button class="tab" onclick="show('widget')">🔲 Widget</button>
+</div>
+
+<!-- HOME -->
+<div id="s-home">
+<div class="phone">
+  <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">●●● 🔋</span></div>
+  <div class="ab">
+    <div class="ab-left"><div class="ab-title">QuickCopy</div><div class="ab-sub">6 snippets</div></div>
+    <div class="ab-right">
+      <button class="ab-btn">⚡</button>
+      <button class="ab-btn">⚙️</button>
+    </div>
+  </div>
+  <div class="search"><span class="search-icon">🔍</span><input class="search-input" placeholder="Search snippets…"/></div>
+  <div class="list-card">
+    <div class="row"><div class="accent" style="background:#C0C0C0"></div><div class="icon-wrap">💼</div><div class="text-block"><div class="row-title">Email Signature</div><div class="row-preview">Best regards, John Smith · Senior Developer</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#A0A0A0"></div><div class="icon-wrap">👤</div><div class="text-block"><div class="row-title">Home Address</div><div class="row-preview">123 Main Street, Kuwait City, Kuwait</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#808080"></div><div class="icon-wrap">💳</div><div class="text-block"><div class="row-title">IBAN Number</div><div class="row-preview">KW81CBKU0000000000001234560101</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#606060"></div><div class="icon-wrap">💼</div><div class="text-block"><div class="row-title">Meeting Link</div><div class="row-preview">https://meet.google.com/abc-defg-hij</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#B8B8B8"></div><div class="icon-wrap">⚖️</div><div class="text-block"><div class="row-title">Civil ID</div><div class="row-preview">285010100547</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#909090"></div><div class="icon-wrap">📌</div><div class="text-block"><div class="row-title">WhatsApp Reply</div><div class="row-preview">Thanks! I'll get back to you shortly 🙏</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+  </div>
+  <div class="banner"><span class="banner-lbl">Ad</span><span class="banner-txt">Google AdMob — Test Banner</span></div>
+  <div class="fab" onclick="show('create')">＋</div>
+</div>
+</div>
+
+<!-- COPY FEEDBACK -->
+<div id="s-copy" style="display:none">
+<div class="phone">
+  <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">●●● 🔋</span></div>
+  <div class="ab"><div class="ab-left"><div class="ab-title">QuickCopy</div><div class="ab-sub">6 snippets</div></div><div class="ab-right"><button class="ab-btn">⚙️</button></div></div>
+  <div class="search"><span class="search-icon">🔍</span><input class="search-input" placeholder="Search snippets…"/></div>
+  <div class="list-card">
+    <div class="row" style="background:rgba(192,192,192,.07)"><div class="accent" style="background:#808080;box-shadow:0 0 8px rgba(192,192,192,.4)"></div><div class="icon-wrap">💳</div><div class="text-block"><div class="row-title">IBAN Number</div><div class="row-preview">KW81CBKU0000000000001234560101</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#C0C0C0"></div><div class="icon-wrap">💼</div><div class="text-block"><div class="row-title">Email Signature</div><div class="row-preview">Best regards, John Smith</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+    <div class="row"><div class="accent" style="background:#A0A0A0"></div><div class="icon-wrap">👤</div><div class="text-block"><div class="row-title">Home Address</div><div class="row-preview">123 Main Street, Kuwait City</div></div><div class="row-btns"><button class="btn copy-btn"><span class="btn-ico">📋</span><span class="copy-lbl">Copy</span></button><button class="btn del-btn"><span class="btn-ico">🗑️</span><span class="del-lbl">Del</span></button></div></div>
+  </div>
+  <div class="snackbar"><span class="snack-txt">✓  "IBAN Number" copied to clipboard</span><span class="snack-x">✕</span></div>
+  <div class="banner"><span class="banner-lbl">Ad</span><span class="banner-txt">Google AdMob — Test Banner</span></div>
+  <div class="fab">＋</div>
+</div>
+</div>
+
+<!-- LONG PRESS -->
+<div id="s-longpress" style="display:none">
+<div class="phone" style="position:relative">
+  <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">●●● 🔋</span></div>
+  <div class="ab"><div class="ab-left"><div class="ab-title">QuickCopy</div></div></div>
+  <div class="list-card" style="opacity:.25;pointer-events:none;margin-bottom:8px">
+    <div class="row"><div class="accent" style="background:#C0C0C0"></div><div class="icon-wrap">💼</div><div class="text-block"><div class="row-title">Email Signature</div></div></div>
+    <div class="row"><div class="accent" style="background:#A0A0A0"></div><div class="icon-wrap">👤</div><div class="text-block"><div class="row-title">Home Address</div></div></div>
+  </div>
+  <div class="bs-overlay">
+    <div class="bs-sheet">
+      <div class="bs-handle"></div>
+      <div class="bs-meta"><div class="bs-dot" style="background:#C0C0C0"></div><div class="bs-name">Email Signature</div></div>
+      <div class="bs-div"></div>
+      <div class="bs-action"><span class="bs-ico">✏️</span><span class="bs-lbl">Edit Snippet</span></div>
+      <div class="bs-action danger"><span class="bs-ico">🗑️</span><span class="bs-lbl">Delete Snippet</span></div>
+      <div class="bs-action"><span class="bs-ico" style="color:#444">✕</span><span class="bs-lbl" style="color:#666">Close</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CREATE -->
+<div id="s-create" style="display:none">
+<div class="phone" style="position:relative">
+  <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">●●● 🔋</span></div>
+  <div class="modal-overlay">
+    <div class="modal-sheet">
+      <div class="modal-hdr">
+        <button class="modal-btn" style="color:#666">Cancel</button>
+        <span class="modal-title">New Snippet</span>
+        <button class="modal-btn" style="color:var(--primary);font-weight:700">Create</button>
+      </div>
+      <div class="modal-body">
+        <div><div class="field-lbl">Title</div><input class="field-input" value="Email Signature" readonly/><div class="counter">14 / 60</div></div>
+        <div><div class="field-lbl">Content</div><textarea class="field-input textarea" readonly>Best regards,
+John Smith
+Senior Developer</textarea><div class="counter">49 / 2000</div></div>
+        <div>
+          <div class="field-lbl">Accent Colour</div>
+          <div class="color-row">
+            <div class="swatch sel" style="background:#C0C0C0"></div>
+            <div class="swatch" style="background:#A0A0A0"></div>
+            <div class="swatch" style="background:#808080"></div>
+            <div class="swatch" style="background:#606060"></div>
+            <div class="swatch" style="background:#B8B8B8"></div>
+            <div class="swatch" style="background:#909090"></div>
+            <div class="swatch" style="background:#D0D0D0"></div>
+            <div class="swatch" style="background:#707070"></div>
+          </div>
+        </div>
+        <div>
+          <div class="field-lbl">Category</div>
+          <div class="cat-row">
+            <div class="cat">General</div><div class="cat active">Work</div>
+            <div class="cat">Personal</div><div class="cat">Finance</div><div class="cat">Medical</div>
+          </div>
+        </div>
+        <div>
+          <div class="field-lbl">Preview</div>
+          <div class="preview-block"><div class="preview-title">Email Signature</div><div class="preview-content">Best regards,<br>John Smith<br>Senior Developer</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div id="s-settings" style="display:none">
+<div class="phone" style="position:relative">
+  <div class="sb"><span class="sb-t">9:41</span><span class="sb-i">●●● 🔋</span></div>
+  <div class="modal-overlay" style="border-radius:30px">
+    <div class="settings-sheet">
+      <div class="settings-hdr">
+        <span class="settings-title">Settings</span>
+        <button class="modal-btn" style="color:#666;font-size:16px">✕</button>
+      </div>
+      <div class="sec-label">MONETIZATION</div>
+      <div class="settings-card">
+        <div class="s-row"><span class="s-ico">⚡</span><span class="s-label">Remove Ads</span><span class="s-chev">›</span></div>
+        <div class="s-row"><span class="s-ico">🔄</span><span class="s-label">Restore Purchases</span><span class="s-chev">›</span></div>
+      </div>
+      <div class="sec-label">HOME SCREEN WIDGET</div>
+      <div class="settings-card" style="margin-bottom:4px">
+        <div class="s-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+          <span style="color:var(--primary);font-size:13px;font-weight:700">3 widget sizes available</span>
+          <span style="color:var(--sub);font-size:12px;line-height:1.6">Long-press home screen → <b style="color:var(--text)">Widgets</b> → search <b style="color:var(--text)">"Clipboard Snippets"</b></span>
+          <div style="display:flex;gap:8px;width:100%">
+            <div style="flex:1;background:rgba(192,192,192,.08);border:1px solid rgba(192,192,192,.15);border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:16px">▪️</div><div style="color:var(--text);font-size:11px;font-weight:700">Small</div><div style="color:var(--sub);font-size:9px">2×2 · 2 items</div>
+            </div>
+            <div style="flex:1;background:rgba(192,192,192,.08);border:1px solid rgba(192,192,192,.15);border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:16px">🔲</div><div style="color:var(--text);font-size:11px;font-weight:700">Medium</div><div style="color:var(--sub);font-size:9px">3×3 · 5 items</div>
+            </div>
+            <div style="flex:1;background:rgba(192,192,192,.08);border:1px solid rgba(192,192,192,.15);border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:16px">⬛</div><div style="color:var(--text);font-size:11px;font-weight:700">Large</div><div style="color:var(--sub);font-size:9px">4×4 · 7 items</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-label">DATA MANAGEMENT</div>
+      <div class="settings-card">
+        <div class="s-row"><span class="s-ico">📊</span><span class="s-label">Snippets Stored</span><span class="s-val">6</span></div>
+        <div class="s-row"><span class="s-ico">📤</span><span class="s-label">Export All Snippets</span><span class="s-chev">›</span></div>
+        <div class="s-row"><span class="s-ico">🗑️</span><span class="s-label" style="color:var(--error)">Clear All Snippets</span><span class="s-chev">›</span></div>
+      </div>
+      <div class="sec-label">SECURITY</div>
+      <div class="settings-card">
+        <div class="s-row"><span class="s-ico">🔐</span><span class="s-label">Encryption</span><span class="s-val">AES-256</span></div>
+        <div class="s-row"><span class="s-ico">🔑</span><span class="s-label">Key Storage</span><span class="s-val">Android Keystore</span></div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WIDGET -->
+<div id="s-widget" style="display:none">
+<div class="widget-wrap">
+  <div class="widget-lbl">Android Home Screen — 3 Sizes</div>
+  <div class="widget-bg">
+    <div class="sizes-row">
+      <!-- Small -->
+      <div class="widget small">
+        <div class="w-header"><span style="font-size:10px">📋</span><span class="w-title">Snippets</span><span class="w-open">›</span></div>
+        <div class="w-list">
+          <div class="w-row"><div class="w-accent" style="background:#C0C0C0"></div><div class="w-text"><div class="w-row-title">Email Signature</div><div class="w-row-cat">Work</div></div><div class="w-copy">📋</div></div>
+          <div class="w-row"><div class="w-accent" style="background:#A0A0A0"></div><div class="w-text"><div class="w-row-title">IBAN Number</div><div class="w-row-cat">Finance</div></div><div class="w-copy">📋</div></div>
+        </div>
+      </div>
+      <!-- Medium -->
+      <div class="widget medium">
+        <div class="w-header"><span style="font-size:11px">📋</span><span class="w-title">Clipboard Snippets</span><span class="w-open">Open ›</span></div>
+        <div class="w-list">
+          <div class="w-row"><div class="w-accent" style="background:#C0C0C0"></div><div class="w-text"><div class="w-row-title">Email Signature</div><div class="w-row-cat">Work</div></div><div class="w-copy">📋</div></div>
+          <div class="w-row"><div class="w-accent" style="background:#A0A0A0"></div><div class="w-text"><div class="w-row-title">IBAN Number</div><div class="w-row-cat">Finance</div></div><div class="w-copy">📋</div></div>
+          <div class="w-row"><div class="w-accent" style="background:#808080"></div><div class="w-text"><div class="w-row-title">Home Address</div><div class="w-row-cat">Personal</div></div><div class="w-copy">📋</div></div>
+          <div class="w-row"><div class="w-accent" style="background:#606060"></div><div class="w-text"><div class="w-row-title">Meeting Link</div><div class="w-row-cat">Work</div></div><div class="w-copy">📋</div></div>
+          <div class="w-row"><div class="w-accent" style="background:#B8B8B8"></div><div class="w-text"><div class="w-row-title">Civil ID</div><div class="w-row-cat">Legal</div></div><div class="w-copy">📋</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Large -->
+    <div class="widget large">
+      <div class="w-header"><span style="font-size:12px">📋</span><span class="w-title" style="font-size:10px">Clipboard Snippets</span><span class="w-open">Open app ›</span></div>
+      <div class="w-list" style="display:grid;grid-template-columns:1fr 1fr;gap:2px">
+        <div class="w-row"><div class="w-accent" style="background:#C0C0C0"></div><div class="w-text"><div class="w-row-title">Email Signature</div><div class="w-row-cat">Work</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#A0A0A0"></div><div class="w-text"><div class="w-row-title">IBAN Number</div><div class="w-row-cat">Finance</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#808080"></div><div class="w-text"><div class="w-row-title">Home Address</div><div class="w-row-cat">Personal</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#606060"></div><div class="w-text"><div class="w-row-title">Meeting Link</div><div class="w-row-cat">Work</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#B8B8B8"></div><div class="w-text"><div class="w-row-title">Civil ID</div><div class="w-row-cat">Legal</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#909090"></div><div class="w-text"><div class="w-row-title">WhatsApp Reply</div><div class="w-row-cat">General</div></div><div class="w-copy">📋</div></div>
+        <div class="w-row"><div class="w-accent" style="background:#D0D0D0"></div><div class="w-text"><div class="w-row-title">WiFi Password</div><div class="w-row-cat">Tech</div></div><div class="w-copy">📋</div></div>
+      </div>
+    </div>
+    <div class="size-labels">
+      <div class="size-label" style="flex:0 0 100px"><span class="size-name">Small</span><span class="size-dim">2×2 · 2 snippets</span></div>
+      <div class="size-label" style="flex:1"><span class="size-name">Medium</span><span class="size-dim">3×3 · 5 snippets</span></div>
+    </div>
+    <div style="text-align:center"><span class="size-name">Large</span> <span class="size-dim">4×4 · 7 snippets</span></div>
+  </div>
+  <p style="color:#333;font-size:11px;text-align:center;max-width:300px;line-height:1.6">
+    Long-press home screen → Widgets → "Clipboard Snippets"
+  </p>
+</div>
+</div>
+
+<script>
+const IDS=['home','copy','longpress','create','settings','widget'];
+function show(id){
+  IDS.forEach(s=>{ document.getElementById('s-'+s).style.display=s===id?'flex':'none'; });
+  document.querySelectorAll('.tab').forEach((t,i)=>{ t.classList.toggle('active',IDS[i]===id); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+dist/
+build/
+android/
+ios/
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+.env
+.env.local
+.env.production
+npm-debug.*
+*.orig.*
+web-build/

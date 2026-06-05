@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s /b \"C:\\\\Clipboard APP\\\\src\")",
+      "PowerShell($sdkPath = \"$env:LOCALAPPDATA\\\\Android\\\\Sdk\"; if \\(Test-Path $sdkPath\\) { Write-Host \"Found: $sdkPath\" } else { Write-Host \"NOT FOUND\" })"
+    ]
+  }
+}
