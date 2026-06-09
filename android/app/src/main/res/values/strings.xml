@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">ClipVault</string>
+  <string name="widget_snippetwidget_description" translatable="false">Show your saved snippets on the home screen</string>
+  <string name="widget_slimsnippetwidget_description" translatable="false">Compact snippet widget</string>
+</resources>
