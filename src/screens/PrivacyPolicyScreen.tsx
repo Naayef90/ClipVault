@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
+  BackHandler,
   Dimensions,
   Pressable,
   ScrollView,
@@ -76,6 +77,15 @@ export function PrivacyPolicyScreen({ visible, onClose }: PrivacyPolicyScreenPro
       speed: 14,
     }).start();
   }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      onClose();
+      return true;
+    });
+    return () => sub.remove();
+  }, [visible, onClose]);
 
   if (!visible && slideAnim._value === SCREEN_HEIGHT) return null;
 

@@ -1,32 +1,10 @@
-/**
- * Android home-screen widget — "Copied Items"
- *
- * Shows the 5 most recently created snippets.
- * Tapping any row triggers a broadcastIntent that the main app handles
- * to copy the snippet content to the clipboard.
- *
- * Built with react-native-android-widget.
- * After adding the library run:
- *   npx expo prebuild --platform android --clean
- */
 import React from 'react';
-import {
-  FlexWidget,
-  TextWidget,
-  ListWidget,
-  ImageWidget,
-} from 'react-native-android-widget';
+import { FlexWidget, ListWidget, TextWidget } from 'react-native-android-widget';
 import type { Snippet } from '../types';
 
 interface SnippetWidgetProps {
   snippets: Snippet[];
 }
-
-const CATEGORY_ICONS: Record<string, string> = {
-  Work: '💼', Personal: '👤', Finance: '💳',
-  Medical: '🏥', Legal: '⚖️', Travel: '✈️',
-  Tech: '💻', General: '📌',
-};
 
 function WidgetRow({ snippet }: { snippet: Snippet }) {
   return (
@@ -34,114 +12,126 @@ function WidgetRow({ snippet }: { snippet: Snippet }) {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         paddingVertical: 8,
-        borderRadius: 8,
-        backgroundColor: '#1E1E2E',
-        marginBottom: 4,
         width: 'match_parent',
+        backgroundColor: '#FFFFFF',
       }}
       clickAction="COPY_SNIPPET"
       clickActionData={{ snippetId: snippet.id, content: snippet.content }}
     >
-      {/* Colour dot */}
       <FlexWidget
         style={{
-          width: 8,
-          height: 8,
-          borderRadius: 4,
-          backgroundColor: snippet.color,
+          width: 3,
+          height: 32,
+          borderRadius: 2,
+          backgroundColor: snippet.color as `#${string}`,
           marginRight: 10,
         }}
       />
-
-      {/* Title + preview */}
-      <FlexWidget style={{ flex: 1, flexDirection: 'column', gap: 2 }}>
+      <FlexWidget style={{ flex: 1, flexDirection: 'column' }}>
         <TextWidget
           text={snippet.title}
-          style={{ fontSize: 14, fontWeight: '600', color: '#E6E1E5' }}
+          style={{ fontSize: 13, fontWeight: '700', color: '#1C1B1F' }}
           maxLines={1}
         />
         <TextWidget
           text={snippet.content}
-          style={{ fontSize: 12, color: '#938F99' }}
+          style={{ fontSize: 11, color: '#49454F' }}
           maxLines={1}
         />
       </FlexWidget>
-
-      {/* Copy icon */}
-      <TextWidget
-        text="📋"
-        style={{ fontSize: 16, marginLeft: 8 }}
-      />
+      <TextWidget text="📋" style={{ fontSize: 14, marginLeft: 6 }} />
     </FlexWidget>
   );
 }
 
+function Divider() {
+  return (
+    <FlexWidget
+      style={{ height: 1, backgroundColor: '#E7E0EC', width: 'match_parent' }}
+    />
+  );
+}
+
 export function SnippetWidget({ snippets }: SnippetWidgetProps) {
-  const recent = snippets
+  const sorted = snippets
     .slice()
-    .sort((a, b) => b.dateCreated - a.dateCreated)
-    .slice(0, 5);
+    .sort((a, b) => b.dateCreated - a.dateCreated);
 
   return (
     <FlexWidget
       style={{
         flexDirection: 'column',
-        backgroundColor: '#13121A',
-        borderRadius: 16,
-        padding: 12,
         width: 'match_parent',
         height: 'match_parent',
+        backgroundColor: '#FFFFFF',
       }}
     >
-      {/* Header */}
+      {/* ── Header ── */}
       <FlexWidget
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginBottom: 8,
-          gap: 6,
+          justifyContent: 'space-between',
+          width: 'match_parent',
+          paddingHorizontal: 14,
+          paddingTop: 10,
+          paddingBottom: 8,
+          backgroundColor: '#FFFFFF',
         }}
       >
-        <TextWidget
-          text="📋"
-          style={{ fontSize: 16 }}
-        />
-        <TextWidget
-          text="Copied Items"
-          style={{
-            fontSize: 14,
-            fontWeight: '700',
-            color: '#D0BCFF',
-          }}
-        />
+        <FlexWidget style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TextWidget text="📋" style={{ fontSize: 13, marginRight: 6 }} />
+          <TextWidget
+            text="Snippets"
+            style={{ fontSize: 13, fontWeight: '700', color: '#1C1B1F' }}
+          />
+        </FlexWidget>
+        <FlexWidget clickAction="OPEN_APP">
+          <TextWidget
+            text="Open ›"
+            style={{ fontSize: 11, fontWeight: '600', color: '#6750A4' }}
+          />
+        </FlexWidget>
       </FlexWidget>
 
-      {/* Snippet rows */}
-      {recent.length === 0 ? (
-        <TextWidget
-          text="No snippets yet. Open the app to add some."
-          style={{ fontSize: 12, color: '#938F99', textAlign: 'center' }}
-        />
+      <Divider />
+
+      {/* ── Scrollable rows ── */}
+      {sorted.length === 0 ? (
+        <FlexWidget
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+          }}
+        >
+          <TextWidget
+            text="No snippets yet — open the app to add some."
+            style={{ fontSize: 11, color: '#79747E', textAlign: 'center' }}
+          />
+        </FlexWidget>
       ) : (
-        <ListWidget style={{ width: 'match_parent' }}>
-          {recent.map((s) => (
-            <WidgetRow key={s.id} snippet={s} />
+        <ListWidget
+          style={{
+            width: 'match_parent',
+            height: 'match_parent',
+            backgroundColor: '#FFFFFF',
+          }}
+        >
+          {sorted.map((s, i) => (
+            <FlexWidget
+              key={s.id}
+              style={{ flexDirection: 'column', width: 'match_parent' }}
+            >
+              {i > 0 && <Divider />}
+              <WidgetRow snippet={s} />
+            </FlexWidget>
           ))}
         </ListWidget>
       )}
-
-      {/* Footer — tap to open app */}
-      <FlexWidget
-        style={{ marginTop: 6, alignItems: 'flex-end' }}
-        clickAction="OPEN_APP"
-      >
-        <TextWidget
-          text="Open app ›"
-          style={{ fontSize: 11, color: '#49454F' }}
-        />
-      </FlexWidget>
     </FlexWidget>
   );
 }

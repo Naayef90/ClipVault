@@ -2,6 +2,7 @@ import type { Snippet, SnippetFormData } from '../types';
 import { parseSnippetArray } from '../utils/validation';
 import { generateSecureId } from '../utils/security';
 import { getMMKV } from './mmkvInstance';
+import { writeWidgetCache } from './widgetCache';
 
 const SNIPPETS_KEY = 'user_snippets_v1';
 
@@ -11,7 +12,9 @@ function readAll(): Snippet[] {
 }
 
 function writeAll(snippets: Snippet[]): void {
-  getMMKV().set(SNIPPETS_KEY, JSON.stringify(snippets));
+  const json = JSON.stringify(snippets);
+  getMMKV().set(SNIPPETS_KEY, json);
+  writeWidgetCache(json);
 }
 
 export const SnippetStorage = {

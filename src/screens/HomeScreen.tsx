@@ -18,7 +18,6 @@ import { useClipboardManager } from '../hooks/useClipboardManager';
 import { useSnackbar } from '../hooks/useSnackbar';
 import { SnippetGrid } from '../components/features/SnippetGrid';
 import { SnippetFormModal } from '../components/features/SnippetFormModal';
-import { BottomSheetActions } from '../components/features/BottomSheetActions';
 import { BannerAdContainer } from '../components/features/BannerAdContainer';
 import { SnackbarHost } from '../components/common/SnackbarHost';
 import AdScheduler from '../services/AdScheduler';
@@ -36,8 +35,6 @@ export function HomeScreen() {
   const [formVisible,     setFormVisible]     = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [editTarget,      setEditTarget]      = useState<Snippet | null>(null);
-  const [sheetSnippet,    setSheetSnippet]    = useState<Snippet | null>(null);
-  const [sheetVisible,    setSheetVisible]    = useState(false);
   const [search,          setSearch]          = useState('');
 
   const filtered = search.trim()
@@ -55,11 +52,6 @@ export function HomeScreen() {
       result.success ? 'success' : 'error',
     );
   }, [copyToClipboard, showSnackbar]);
-
-  const handleLongPress = useCallback((snippet: Snippet) => {
-    setSheetSnippet(snippet);
-    setSheetVisible(true);
-  }, []);
 
   const handleDelete = useCallback((snippet: Snippet) => {
     Alert.alert('Delete Snippet', `Delete "${snippet.title}"? This cannot be undone.`, [
@@ -182,13 +174,13 @@ export function HomeScreen() {
       </View>
 
       {/* ── Snippet list ────────────────────────────────────────────── */}
-      <View style={[styles.listCard, { backgroundColor: SurfaceLevel1 }]}>
+      <View style={styles.listCard}>
         <SnippetGrid
           snippets={filtered}
           isLoading={isLoading}
           onCopy={handleCopy}
+          onEdit={handleEdit}
           onDelete={handleDelete}
-          onLongPress={handleLongPress}
           ListFooterComponent={<View style={{ height: 80 }} />}
         />
       </View>
@@ -215,13 +207,6 @@ export function HomeScreen() {
         editTarget={editTarget}
         onSubmit={handleFormSubmit}
         onCancel={() => setFormVisible(false)}
-      />
-      <BottomSheetActions
-        snippet={sheetSnippet}
-        visible={sheetVisible}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onClose={() => setSheetVisible(false)}
       />
       <SettingsScreen
         visible={settingsVisible}
@@ -271,10 +256,7 @@ const styles = StyleSheet.create({
 
   listCard: {
     flex: 1,
-    marginHorizontal: 14,
     marginBottom: 8,
-    borderRadius: 14,
-    overflow: 'hidden',
   },
 
   bottomBanner: {

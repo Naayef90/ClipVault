@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Alert,
   Animated,
+  BackHandler,
   Dimensions,
   Pressable,
   ScrollView,
@@ -86,6 +87,16 @@ export function SettingsScreen({ visible, onClose }: SettingsScreenProps) {
   const { current: snackbar, showSnackbar, dismissSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<string | null>(null);
   const [privacyVisible, setPrivacyVisible] = useState(false);
+
+  useEffect(() => {
+    if (!visible) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (privacyVisible) { setPrivacyVisible(false); return true; }
+      onClose();
+      return true;
+    });
+    return () => sub.remove();
+  }, [visible, privacyVisible, onClose]);
 
   // Slide-up animation
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;

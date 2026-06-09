@@ -42,6 +42,31 @@
           "androidAppId": "ca-app-pub-5218574173760069~6588051111",
           "delayAppMeasurementInit": true
         }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "SnippetWidget",
+              "label": "Clipboard Snippets",
+              "minWidth": "180dp",
+              "minHeight": "110dp",
+              "description": "Show your saved snippets on the home screen",
+              "previewImage": "./assets/icon.png",
+              "resizeMode": "horizontal|vertical"
+            },
+            {
+              "name": "SlimSnippetWidget",
+              "label": "Clipboard Snippets (Slim)",
+              "minWidth": "180dp",
+              "minHeight": "50dp",
+              "description": "Compact snippet widget",
+              "previewImage": "./assets/icon.png",
+              "resizeMode": "horizontal|vertical"
+            }
+          ]
+        }
       ]
     ],
     "extra": {

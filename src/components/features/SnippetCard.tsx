@@ -12,9 +12,11 @@ import { SurfaceLevel1 } from '../../utils/theme';
 
 interface SnippetCardProps {
   snippet: Snippet;
+  expanded: boolean;
+  onExpand: (id: string | null) => void;
   onCopy: (snippet: Snippet) => void;
+  onEdit: (snippet: Snippet) => void;
   onDelete: (snippet: Snippet) => void;
-  onLongPress: (snippet: Snippet) => void;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -30,58 +32,65 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export const SnippetCard = React.memo(function SnippetCard({
   snippet,
+  expanded,
+  onExpand,
   onCopy,
+  onEdit,
   onDelete,
-  onLongPress,
 }: SnippetCardProps) {
   const { colors } = useTheme();
 
-  const handleCopy   = useCallback(() => onCopy(snippet),      [onCopy,      snippet]);
-  const handleDelete = useCallback(() => onDelete(snippet),    [onDelete,    snippet]);
-  const handleLong   = useCallback(() => onLongPress(snippet), [onLongPress, snippet]);
+  const handlePress  = useCallback(() => onExpand(expanded ? null : snippet.id), [expanded, onExpand, snippet.id]);
+  const handleCopy   = useCallback(() => onCopy(snippet),   [onCopy,   snippet]);
+  const handleEdit   = useCallback(() => onEdit(snippet),   [onEdit,   snippet]);
+  const handleDelete = useCallback(() => onDelete(snippet), [onDelete, snippet]);
 
   const icon = CATEGORY_ICONS[snippet.category] ?? '📌';
 
   return (
     <Pressable
-      onLongPress={handleLong}
+      onPress={handlePress}
       android_ripple={{ color: `${snippet.color}20` }}
-      style={[styles.row, { borderBottomColor: colors.outlineVariant, backgroundColor: SurfaceLevel1 }]}
+      style={[
+        styles.card,
+        {
+          borderColor: expanded ? `${snippet.color}55` : colors.outlineVariant,
+          backgroundColor: SurfaceLevel1,
+        },
+      ]}
       accessibilityRole="button"
-      accessibilityLabel={`${snippet.title}. Long press for more options.`}
+      accessibilityLabel={snippet.title}
+      accessibilityState={{ expanded }}
     >
-      {/* Left accent bar */}
-      <View style={[styles.accentBar, { backgroundColor: snippet.color }]} />
+      {/* ── Header row ── */}
+      <View style={styles.header}>
+        <View style={[styles.accentBar, { backgroundColor: snippet.color }]} />
 
-      {/* Category icon */}
-      <View style={styles.iconWrap}>
-        <Text style={styles.icon}>{icon}</Text>
-      </View>
+        <View style={styles.iconWrap}>
+          <Text style={styles.icon}>{icon}</Text>
+        </View>
 
-      {/* Title + preview — flex:1 so it takes remaining space before buttons */}
-      <View style={styles.textBlock}>
-        <Text
-          style={[styles.title, { color: colors.onSurface }]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {snippet.title}
-        </Text>
-        <Text
-          style={[styles.preview, { color: colors.onSurfaceVariant }]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {snippet.content}
-        </Text>
-      </View>
+        <View style={styles.textBlock}>
+          <Text
+            style={[styles.title, { color: colors.onSurface }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {snippet.title}
+          </Text>
+          <Text
+            style={[styles.preview, { color: colors.onSurfaceVariant }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {snippet.content}
+          </Text>
+        </View>
 
-      {/* Action buttons — fixed width column, always on the right */}
-      <View style={styles.actions}>
         <TouchableOpacity
           onPress={handleCopy}
           activeOpacity={0.7}
-          style={[styles.btn, styles.copyBtn, { borderColor: snippet.color }]}
+          style={[styles.copyBtn, { borderColor: snippet.color }]}
           accessibilityLabel="Copy"
           hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
         >
@@ -89,29 +98,64 @@ export const SnippetCard = React.memo(function SnippetCard({
           <Text style={[styles.btnLabel, { color: snippet.color }]}>Copy</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={handleDelete}
-          activeOpacity={0.7}
-          style={[styles.btn, styles.delBtn, { borderColor: colors.error }]}
-          accessibilityLabel="Delete"
-          hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-        >
-          <Text style={styles.btnIcon}>🗑️</Text>
-          <Text style={[styles.btnLabel, { color: colors.error }]}>Del</Text>
-        </TouchableOpacity>
+        <Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>
+          {expanded ? '▲' : '▼'}
+        </Text>
       </View>
+
+      {/* ── Expanded section ── */}
+      {expanded && (
+        <>
+          {/* Full content preview */}
+          <View style={[styles.contentBox, { backgroundColor: `${snippet.color}0D`, borderTopColor: `${snippet.color}33` }]}>
+            <Text style={[styles.contentText, { color: colors.onSurface }]}>
+              {snippet.content}
+            </Text>
+          </View>
+
+          {/* Action bar */}
+          <View style={[styles.actionBar, { borderTopColor: colors.outlineVariant }]}>
+            <TouchableOpacity
+              onPress={handleEdit}
+              activeOpacity={0.7}
+              style={styles.actionBtn}
+              accessibilityLabel="Edit"
+            >
+              <Text style={styles.actionIcon}>✏️</Text>
+              <Text style={[styles.actionLabel, { color: colors.primary }]}>Edit</Text>
+            </TouchableOpacity>
+
+            <View style={[styles.actionDivider, { backgroundColor: colors.outlineVariant }]} />
+
+            <TouchableOpacity
+              onPress={handleDelete}
+              activeOpacity={0.7}
+              style={styles.actionBtn}
+              accessibilityLabel="Delete"
+            >
+              <Text style={styles.actionIcon}>🗑️</Text>
+              <Text style={[styles.actionLabel, { color: colors.error }]}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </Pressable>
   );
 });
 
-const BTN_W = 52;
-
 const styles = StyleSheet.create({
-  row: {
+  card: {
+    borderWidth: 1,
+    borderRadius: 12,
+    marginHorizontal: 12,
+    marginVertical: 4,
+    overflow: 'hidden',
+  },
+
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    minHeight: 64,
+    minHeight: 62,
   },
 
   accentBar: {
@@ -126,11 +170,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexShrink: 0,
   },
-  icon: {
-    fontSize: 19,
-  },
+  icon: { fontSize: 19 },
 
-  /* text block: flex:1 ensures it shrinks before buttons overflow */
   textBlock: {
     flex: 1,
     paddingVertical: 12,
@@ -148,36 +189,56 @@ const styles = StyleSheet.create({
     lineHeight: 17,
   },
 
-  /* button column — fixed width so they never shift */
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingRight: 10,
-    flexShrink: 0,
-  },
-
-  btn: {
-    width: BTN_W,
+  copyBtn: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRadius: 8,
     borderWidth: 1,
     gap: 1,
-  },
-  copyBtn: {
     backgroundColor: 'rgba(255,255,255,0.04)',
+    flexShrink: 0,
   },
-  delBtn: {
-    backgroundColor: 'rgba(242,184,181,0.06)',
-  },
-  btnIcon: {
-    fontSize: 13,
-  },
-  btnLabel: {
-    fontSize: 10,
+  btnIcon: { fontSize: 13 },
+  btnLabel: { fontSize: 10, fontWeight: '700', letterSpacing: 0.4 },
+
+  chevron: {
+    fontSize: 9,
     fontWeight: '700',
-    letterSpacing: 0.4,
+    paddingHorizontal: 10,
+    flexShrink: 0,
+  },
+
+  contentBox: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
+  contentText: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+
+  actionBar: {
+    flexDirection: 'row',
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  actionBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
+    gap: 3,
+  },
+  actionDivider: {
+    width: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
+  },
+  actionIcon: { fontSize: 14 },
+  actionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,8 +15,8 @@ interface SnippetGridProps {
   snippets: Snippet[];
   isLoading: boolean;
   onCopy: (snippet: Snippet) => void;
+  onEdit: (snippet: Snippet) => void;
   onDelete: (snippet: Snippet) => void;
-  onLongPress: (snippet: Snippet) => void;
   ListHeaderComponent?: React.ReactElement;
   ListFooterComponent?: React.ReactElement;
 }
@@ -37,23 +37,26 @@ export function SnippetGrid({
   snippets,
   isLoading,
   onCopy,
+  onEdit,
   onDelete,
-  onLongPress,
   ListHeaderComponent,
   ListFooterComponent,
 }: SnippetGridProps) {
   const { colors } = useTheme();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const renderItem = useCallback<ListRenderItem<Snippet>>(
     ({ item }) => (
       <SnippetCard
         snippet={item}
+        expanded={expandedId === item.id}
+        onExpand={setExpandedId}
         onCopy={onCopy}
+        onEdit={onEdit}
         onDelete={onDelete}
-        onLongPress={onLongPress}
       />
     ),
-    [onCopy, onDelete, onLongPress],
+    [expandedId, onCopy, onEdit, onDelete],
   );
 
   const keyExtractor = useCallback((item: Snippet) => item.id, []);
